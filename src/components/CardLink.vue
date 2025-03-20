@@ -2,7 +2,7 @@
   <VTooltip :disabled="error === ''" :text="error">
     <template #activator="{ props }">
       <VChip density="compact" v-bind="props" data-test="chip-link" pill @click="toggle">
-        <template #append>
+        <template #append v-if="item">
           <VBtn
             v-if="enabled"
             icon="mdi-check"
@@ -73,8 +73,8 @@ async function loadCard(name: string) {
 const enabled = ref(true)
 
 async function toggle() {
-  enabled.value = !enabled.value
   if (props.item) {
+    enabled.value = !enabled.value
     toggler.lastToggle = props.item
   }
 }
