@@ -11,7 +11,10 @@ const drawer = ref(false)
       <VAppBarNavIcon @click="drawer = !drawer"></VAppBarNavIcon>
       <VAppBarTitle>Sideboards</VAppBarTitle>
     </VAppBar>
-    <VNavigationDrawer mobile v-model="drawer"></VNavigationDrawer>
+    <VNavigationDrawer mobile v-model="drawer">
+      <VListItem link :to="{ name: 'home' }" title="Home" prepend-icon="mdi-home"></VListItem>
+      <VListItem link :to="{ name: 'archetypes' }" title="Archetypes"></VListItem>
+    </VNavigationDrawer>
     <VMain>
       <RouterView />
     </VMain>

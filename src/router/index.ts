@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import SideboardView from '@/views/SideboardView.vue'
+import ArchetypeView from '@/views/admin/ArchetypeView.vue'
+import AdminView from '@/views/admin/AdminView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +12,17 @@ const router = createRouter({
       alias: '/sideboards',
       name: 'home',
       component: HomeView,
+    },
+    {
+      path: '/sideboard/:name',
+      name: 'sideboard',
+      component: SideboardView,
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+      children: [{ path: 'archetypes', name: 'archetypes', component: ArchetypeView }],
     },
     {
       path: '/about',

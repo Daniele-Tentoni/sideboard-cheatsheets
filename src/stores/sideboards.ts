@@ -1,44 +1,79 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import jund from "@/assets/sideboards/jund_wildfire.json"
+
+export type ScryfallCard = {
+  name: string
+  image_uris: {
+    art_crop: string
+  }
+  scryfall_uri: string
+}
 
 export type DeckCard = {
   copies: number
   name: string
 }
 
+export type Deck = {
+  id?: number
+  name: string
+  art: string
+  colors?: string
+  date?: Date
+}
+
 export type Sideboard = {
   name: string
+  colors?: string
   in?: DeckCard[]
   out?: DeckCard[]
   note?: string[]
 }
 
+export type Cheatsheet = {
+  art: string
+  name: string
+  archetype?: Deck
+  opponents: Sideboard[]
+}
+
+export const deckDb: Deck[] = [
+  {
+    id: 1,
+    name: 'Jund Wildfire',
+    art: 'https://cards.scryfall.io/art_crop/front/4/9/492d77e5-acc6-41b8-8930-f39d69234919.jpg?1604196948',
+    colors: 'BGR',
+  },
+  {
+    id: 2,
+    name: 'Golgari Glee',
+    art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
+    colors: 'BG',
+  },
+]
+
 export const useSideboardStore = defineStore('sideboard', () => {
   const loading = ref(false)
 
-  const sideboards = ref<{ name: string; opponents: Sideboard[] }[]>([
+  const sideboards = ref<Cheatsheet[]>([
     {
+      art: 'https://cards.scryfall.io/art_crop/front/4/9/492d77e5-acc6-41b8-8930-f39d69234919.jpg?1604196948',
       name: 'Jund Wildfire',
-      opponents: [
-        {
-          name: 'Golgari Glee',
-          in: [
-            { copies: 3, name: 'Duress' },
-            { copies: 1, name: 'Thorn of the Black Rose' },
-            { copies: 2, name: 'Avenging Hunter' },
-            { copies: 2, name: 'Snuff Out' },
-          ],
-          out: [
-            { copies: 4, name: 'Writhing Chrysalis' },
-            { copies: 2, name: 'Toxin Analysis' },
-            { copies: 1, name: 'Blood Fountain' },
-            { copies: 1, name: 'Nihil Spellbomb' },
-          ],
-        },
-      ],
+      archetype: {
+        name: 'Jund Wildfire',
+        art: 'https://cards.scryfall.io/art_crop/front/4/9/492d77e5-acc6-41b8-8930-f39d69234919.jpg?1604196948',
+        colors: 'BGR',
+      },
+      opponents: jund,
     },
     {
+      art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
       name: 'Gruul Monsters',
+      archetype: {
+        name: 'Gruul Monsters',
+        art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
+      },
       opponents: [
         {
           name: 'Jund Wildfire',
@@ -61,5 +96,16 @@ export const useSideboardStore = defineStore('sideboard', () => {
     },
   ])
 
-  return { loading, sideboards }
+  function update(name: string, opponents: Sideboard[]) {
+    const cheat = sideboards.value.find((f) => f.name === name)
+    if (cheat) {
+      const opponentMap = new Map()
+      cheat.opponents.forEach((i) => opponentMap.set(i.name, i))
+      opponents.forEach((i) => opponentMap.set(i.name, i))
+      cheat.opponents = Array.from(opponentMap.values())
+      console.log('Updates as: ', JSON.stringify(cheat.opponents))
+    }
+  }
+
+  return { loading, sideboards, update }
 })
