@@ -1,6 +1,6 @@
-# sideboard-chearsheets
+# sideboard-cheatsheets
 
-This template should help get you started developing with Vue 3 in Vite.
+Utilities for your sideboard plans.
 
 ## Recommended IDE Setup
 

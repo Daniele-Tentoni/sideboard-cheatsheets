@@ -73,9 +73,7 @@
           </template>
         </VDialog>
       </template>
-      <template #item.opponents="{ item }">
-        <VChip v-for="(j, i) in item.opponents" :key="i">{{ j.name }}</VChip>
-      </template>
+      <template #item.opponents="{ item }"> {{ item.opponents.length }} sideboards </template>
       <template #no-data> No sideboard cheatsheets for the selected deck. </template>
     </VDataTable>
   </VContainer>

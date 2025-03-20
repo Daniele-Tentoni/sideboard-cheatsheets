@@ -1,9 +1,23 @@
 <template>
   <VTooltip :disabled="error === ''" :text="error">
     <template #activator="{ props }">
-      <VChip density="compact" v-bind="props" data-test="chip-link" :href target="_blank" pill link>
+      <VChip density="compact" v-bind="props" data-test="chip-link" pill @click="toggle">
+        <template #append>
+          <VBtn
+            v-if="enabled"
+            icon="mdi-check"
+            color="primary"
+            size="xs"
+            class="ms-2 my-auto"
+          ></VBtn>
+          <VBtn v-else icon="mdi-account" color="secondary" size="xs"></VBtn>
+        </template>
         <VAvatar start v-if="settings.useImages">
-          <VImg :src="scryfallCard?.image_uris?.art_crop" :alt="scryfallCard?.name"></VImg>
+          <VImg
+            :src="scryfallCard?.image_uris?.art_crop"
+            :alt="scryfallCard?.name"
+            @click.stop="nav"
+          ></VImg>
         </VAvatar>
         {{ card.copies }} {{ card.name }}
       </VChip>
@@ -12,14 +26,21 @@
 </template>
 
 <script setup lang="ts">
-//
 import { useSettings } from '@/stores/settings'
 import type { DeckCard, ScryfallCard } from '@/stores/sideboards'
+import { useChipToggle } from '@/stores/toggler'
 import { computed, onMounted, ref, watch } from 'vue'
 
-const props = defineProps<{ card: DeckCard }>()
+const props = defineProps<{ card: DeckCard; item: string }>()
 
 const settings = useSettings()
+
+const toggler = useChipToggle()
+toggler.$subscribe((_mutation, state) => {
+  if (state.lastToggle !== props.item) {
+    enabled.value = true
+  }
+})
 
 onMounted(async () => {
   await loadCard(props.card.name)
@@ -47,5 +68,16 @@ async function loadCard(name: string) {
     }
   } finally {
   }
+}
+
+const enabled = ref(true)
+
+async function toggle() {
+  enabled.value = !enabled.value
+  toggler.lastToggle = props.item
+}
+
+function nav() {
+  window.open(href.value, '_blank')
 }
 </script>

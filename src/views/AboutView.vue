@@ -1,5 +1,3 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
-  </div>
+  <VContainer fluid> Mana symbols comes from Scryfall. </VContainer>
 </template>
