@@ -11,15 +11,16 @@
     </VRow>
     <VRow>
       <VCol>
-        <VDataTable density="compact" :items="opponentsFiltered(cheatsheet?.opponents)">
+        <VDataTable density="compact" :items="opponentsFiltered" :headers>
           <template #top>
             <VRow>
               <VCol>
-                <VAutocomplete
+                <VCombobox
                   v-model="opponentsFilter"
                   :items="allOpponents"
                   label="Opponents"
                   placeholder="Filter opponents"
+                  clearable
                 >
                   <template #item="{ props, item }">
                     <VListItem v-bind="props">
@@ -35,27 +36,30 @@
                       <template #title>{{ item.raw }}</template>
                     </VListItem>
                   </template>
-                </VAutocomplete>
+                </VCombobox>
               </VCol>
               <VCol cols="auto" class="me-4">
                 <VCheckbox v-model="settings.useImages" label="Display images"></VCheckbox>
               </VCol>
-            </VRow>
-          </template>
-          <template #item.colors="{ item }">
-            <ManaIcon v-for="(n, i) in item.colors" :key="i" :icon="n"></ManaIcon>
-          </template>
-          <template #item.out="{ item }">
-            <VRow no-gutters>
-              <VCol v-for="(out, i) in item.out" :key="i">
-                <CardLink :card="out"></CardLink>
+              <VCol cols="auto" class="me-4">
+                <VCheckbox v-model="settings.useShortnames" label="Use shortnames"></VCheckbox>
               </VCol>
             </VRow>
           </template>
-          <template #item.in="{ item }">
+          <template #[`item.colors`]="{ item }">
+            <ManaIcon v-for="(n, i) in item.colors" :key="i" :icon="n"></ManaIcon>
+          </template>
+          <template #[`item.out`]="{ item }">
+            <VRow no-gutters>
+              <VCol v-for="(out, i) in item.out" :key="i">
+                <CardLink :card="out" :item="item.name"></CardLink>
+              </VCol>
+            </VRow>
+          </template>
+          <template #[`item.in`]="{ item }">
             <VRow no-gutters>
               <VCol v-for="(inn, i) in item.in" :key="i">
-                <CardLink :card="inn"></CardLink>
+                <CardLink :card="inn" :item="item.name"></CardLink>
               </VCol>
             </VRow>
           </template>
@@ -63,9 +67,7 @@
       </VCol>
     </VRow>
     <VRow align="center" justify="end">
-      <VCol cols="12" md="auto">
-        You can upload or download a csv file for this archetype.
-      </VCol>
+      <VCol cols="12" md="auto"> You can upload or download a csv file for this archetype. </VCol>
       <VCol cols="12" md="auto">
         <VDialog max-width="600px">
           <template #activator="{ props: dialog }">
@@ -111,13 +113,23 @@ const opponentsFilter = ref('')
 
 const allOpponents = computed(() => cheatsheet.value?.opponents.map((m) => m.name))
 
-const opponentsFiltered = computed(() => (opponents: Sideboard[] | undefined) => {
+const opponentsFiltered = computed(() => {
   if (opponentsFilter.value) {
     const low = opponentsFilter.value.toLowerCase()
-    return opponents?.filter((f) => f.name.toLowerCase().includes(low))
+    return cheatsheet.value?.opponents?.filter((f) => f.name.toLowerCase().includes(low))
   }
 
-  return opponents
+  return cheatsheet.value?.opponents
+})
+
+const headers = computed(() => {
+  const headers = []
+  if (opponentsFiltered.value?.length !== 1) {
+    headers.push({ key: 'name', title: 'Name' })
+  }
+
+  headers.push({ key: 'out', title: 'Out' }, { key: 'in', title: 'In' })
+  return headers
 })
 
 function uploadSideboard(opponents: Sideboard[]) {
