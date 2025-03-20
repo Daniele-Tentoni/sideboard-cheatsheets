@@ -31,7 +31,7 @@ import type { DeckCard, ScryfallCard } from '@/stores/sideboards'
 import { useChipToggle } from '@/stores/toggler'
 import { computed, onMounted, ref, watch } from 'vue'
 
-const props = defineProps<{ card: DeckCard; item: string }>()
+const props = defineProps<{ card: DeckCard; item?: string }>()
 
 const settings = useSettings()
 
@@ -74,7 +74,9 @@ const enabled = ref(true)
 
 async function toggle() {
   enabled.value = !enabled.value
-  toggler.lastToggle = props.item
+  if (props.item) {
+    toggler.lastToggle = props.item
+  }
 }
 
 function nav() {
