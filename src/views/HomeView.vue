@@ -3,7 +3,9 @@
     <VDataTable :items :loading :headers density="compact">
       <template #top>
         <VRow align="center">
-          <VCol cols="auto"><VIcon>mdi-filter</VIcon></VCol>
+          <VCol cols="auto" align-self="center">
+            <VIcon class="ma-auto">mdi-filter</VIcon>
+          </VCol>
           <VCol>
             <VAutocomplete
               v-model="filterName"

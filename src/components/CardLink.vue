@@ -10,7 +10,7 @@
             size="xs"
             class="ms-2 my-auto"
           ></VBtn>
-          <VBtn v-else icon="mdi-account" color="secondary" size="xs"></VBtn>
+          <VBtn v-else icon="mdi-account" color="secondary" size="xs" class="ms-2 my-auto"></VBtn>
         </template>
         <VAvatar start v-if="settings.useImages">
           <VImg

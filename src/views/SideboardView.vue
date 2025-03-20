@@ -98,6 +98,7 @@ import { useRoute } from 'vue-router'
 import ManaIcon from '@/components/ManaIcon.vue'
 import { useSettings } from '@/stores/settings'
 import UploadFileCard from '@/components/csv/UploadFileCard.vue'
+import { useAppTitle } from '@/composables/useAppTitle'
 
 const route = useRoute()
 
@@ -173,6 +174,8 @@ async function load() {
 watch(name, async () => {
   load()
 })
+
+useAppTitle(name.value)
 
 onMounted(async () => {
   load()
