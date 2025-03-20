@@ -26,7 +26,7 @@
           </VCol> </VRow
       ></template>
 
-      <template #item.name="{ item }">
+      <template #[`item.name`]="{ item }">
         <VDialog max-width="800px">
           <template #activator="{ props }">
             <VBtn variant="text" v-bind="props" data-test="dialog-activator">
@@ -52,10 +52,10 @@
                       placeholder="Filter opponents"
                     ></VTextField>
                   </template>
-                  <template #item.in="{ item }">
+                  <template #[`item.in`]="{ item }">
                     <CardLink v-for="(inn, i) in item.in" :key="i" :card="inn"></CardLink>
                   </template>
-                  <template #item.out="{ item }">
+                  <template #[`item.out`]="{ item }">
                     <CardLink v-for="(out, i) in item.out" :key="i" :card="out"></CardLink>
                   </template>
                 </VDataTable>
@@ -75,7 +75,7 @@
           </template>
         </VDialog>
       </template>
-      <template #item.opponents="{ item }"> {{ item.opponents.length }} sideboards </template>
+      <template #[`item.opponents`]="{ item }"> {{ item.opponents.length }} sideboards </template>
       <template #no-data> No sideboard cheatsheets for the selected deck. </template>
     </VDataTable>
   </VContainer>
