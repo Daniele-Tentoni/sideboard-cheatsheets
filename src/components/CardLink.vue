@@ -26,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import { useCards } from '@/stores/cards'
 import { useSettings } from '@/stores/settings'
 import type { DeckCard, ScryfallCard } from '@/stores/sideboards'
 import { useChipToggle } from '@/stores/toggler'
@@ -56,18 +57,10 @@ const scryfallCard = ref<ScryfallCard>()
 
 const error = ref('')
 
+const cards = useCards()
+
 async function loadCard(name: string) {
-  try {
-    const merged = name.replace(' ', '+').toLowerCase()
-    const res = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + merged)
-    scryfallCard.value = await res.json()
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      console.log(e.message)
-      error.value = e.message
-    }
-  } finally {
-  }
+  scryfallCard.value = await cards.get(name)
 }
 
 const enabled = ref(true)
