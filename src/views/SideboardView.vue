@@ -68,23 +68,9 @@
     </VRow>
     <VRow align="center" justify="end">
       <VCol cols="12" md="auto"> You can upload or download a csv file for this archetype. </VCol>
-      <VCol cols="12" md="auto">
-        <VDialog max-width="600px">
-          <template #activator="{ props: dialog }">
-            <VTooltip text="Upload a new csv file">
-              <template #activator="{ props: tooltip }">
-                <VBtn prepend-icon="mdi-upload" v-bind="{ ...dialog, ...tooltip }">Upload</VBtn>
-              </template>
-            </VTooltip>
-          </template>
-          <template #default="{ isActive }">
-            <UploadFileCard
-              v-model:is-active="isActive.value"
-              @upload="uploadSideboard"
-            ></UploadFileCard>
-          </template>
-        </VDialog>
-        <VBtn prepend-icon="mdi-download" @click="download">Download</VBtn>
+      <VCol v-if="cheatsheet" cols="12" md="auto">
+        <UploadCsvButton :cheatsheet></UploadCsvButton>
+        <DownloadCsvButton :cheatsheet></DownloadCsvButton>
       </VCol>
     </VRow>
   </VContainer>
@@ -92,13 +78,15 @@
 
 <script setup lang="ts">
 import CardLink from '@/components/CardLink.vue'
-import { useSideboardStore, type Cheatsheet, type Sideboard } from '@/stores/sideboards'
+import { useSideboardStore, type Cheatsheet } from '@/stores/sideboards'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ManaIcon from '@/components/ManaIcon.vue'
 import { useSettings } from '@/stores/settings'
-import UploadFileCard from '@/components/csv/UploadFileCard.vue'
+
 import { useAppTitle } from '@/composables/useAppTitle'
+import DownloadCsvButton from '@/components/csv/DownloadCsvButton.vue'
+import UploadCsvButton from '@/components/csv/UploadCsvButton.vue'
 
 const route = useRoute()
 
@@ -132,40 +120,6 @@ const headers = computed(() => {
   headers.push({ key: 'out', title: 'Out' }, { key: 'in', title: 'In' })
   return headers
 })
-
-function uploadSideboard(opponents: Sideboard[]) {
-  console.log('Update', name.value, opponents.length)
-  sideboards.update(name.value, opponents)
-}
-
-function convertToCSV(data: Sideboard[] | undefined) {
-  let csv = 'Deck,In Cards,Out Cards\n'
-
-  data?.forEach((deck) => {
-    const inCards = deck?.in?.map((card) => `${card.copies} ${card.name}`).join(', ')
-    const outCards = deck?.out?.map((card) => `${card.copies} ${card.name}`).join(', ')
-    csv += `${deck.name},"${inCards}","${outCards}"\n`
-  })
-
-  return csv
-}
-
-function downloadCSV(csv: string, filename: string) {
-  const blob = new Blob([csv], { type: 'text/csv' })
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.setAttribute('hidden', '')
-  a.setAttribute('href', url)
-  a.setAttribute('download', filename)
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-}
-
-async function download() {
-  const csvData = convertToCSV(cheatsheet.value?.opponents)
-  downloadCSV(csvData, `${name.value}.csv`)
-}
 
 async function load() {
   cheatsheet.value = sideboards.sideboards.find((f) => f.name === name.value)
