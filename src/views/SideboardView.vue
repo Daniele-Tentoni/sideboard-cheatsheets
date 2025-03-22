@@ -8,6 +8,29 @@
         </h3>
       </VCol>
       <VSpacer></VSpacer>
+      <VCol cols="auto" class="me-4">
+        <VMenu max-width="400px">
+          <template #activator="{ props }">
+            <VBtn v-bind="props" data-test="view-menu-button">View</VBtn>
+          </template>
+          <template #default>
+            <VList>
+              <VListItem
+                :prepend-icon="visualization === 'table' ? 'mdi-check' : ''"
+                title="Table"
+                @click="visualization = 'table'"
+                data-test="view-menu-table-button"
+              ></VListItem>
+              <VListItem
+                :prepend-icon="visualization === 'cards' ? 'mdi-check' : ''"
+                title="Cards"
+                @click="visualization = 'cards'"
+                data-test="view-menu-cards-button"
+              ></VListItem>
+            </VList>
+          </template>
+        </VMenu>
+      </VCol>
     </VRow>
     <VRow>
       <VCol>
@@ -30,6 +53,7 @@
                             :src="
                               sideboards.sideboards.find((f) => f.name === item.raw)?.archetype?.art
                             "
+                            data-test="archetype-art"
                           ></VImg>
                         </VAvatar>
                       </template>
@@ -39,10 +63,10 @@
                 </VCombobox>
               </VCol>
               <VCol cols="auto" class="me-4">
-                <VCheckbox v-model="settings.useImages" label="Display images"></VCheckbox>
+                <VCheckbox v-model="settings.useImages" label="Display images" data-test="use-images-selector"></VCheckbox>
               </VCol>
               <VCol cols="auto" class="me-4">
-                <VCheckbox v-model="settings.useShortnames" label="Use shortnames"></VCheckbox>
+                <VCheckbox v-model="settings.useShortnames" label="Use shortnames" data-test="use-shortnames-selector"></VCheckbox>
               </VCol>
             </VRow>
           </template>
@@ -83,10 +107,10 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ManaIcon from '@/components/ManaIcon.vue'
 import { useSettings } from '@/stores/settings'
-
 import { useAppTitle } from '@/composables/useAppTitle'
 import DownloadCsvButton from '@/components/csv/DownloadCsvButton.vue'
 import UploadCsvButton from '@/components/csv/UploadCsvButton.vue'
+import { useLocalStorage } from '@vueuse/core'
 
 const route = useRoute()
 
@@ -95,6 +119,8 @@ const settings = useSettings()
 const sideboards = useSideboardStore()
 
 const name = computed(() => route.params.name.toString())
+
+const visualization = useLocalStorage<'table' | 'cards'>('sideboard-visualization', 'table')
 
 const cheatsheet = ref<Cheatsheet>()
 

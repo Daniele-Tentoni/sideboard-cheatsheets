@@ -1,7 +1,7 @@
 <template>
   <VTooltip :disabled="error === ''" :text="error">
     <template #activator="{ props }">
-      <VChip density="compact" v-bind="props" data-test="chip-link" pill @click="toggle">
+      <VChip density="compact" v-bind="props" data-test="chip-link" rounded @click="toggle">
         <template #append v-if="item">
           <VBtn
             v-if="enabled"
@@ -12,7 +12,7 @@
           ></VBtn>
           <VBtn v-else icon="mdi-account" color="secondary" size="xs" class="ms-2 my-auto"></VBtn>
         </template>
-        <VAvatar start v-if="settings.useImages">
+        <VAvatar start size="24" v-if="settings.useImages">
           <VImg
             :src="scryfallCard?.image_uris?.art_crop"
             :alt="scryfallCard?.name"

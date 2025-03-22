@@ -1,26 +1,26 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { RouterView } from 'vue-router'
-import { useAppTitle, useAppTitleStore } from './composables/useAppTitle'
-
-const drawer = ref(false)
-
-useAppTitle('Sideboards')
-
-const appTitleStore = useAppTitleStore()
-</script>
-
 <template>
   <VApp>
     <VAppBar>
       <VAppBarNavIcon @click="drawer = !drawer"></VAppBarNavIcon>
-      <VAppBarTitle>{{ appTitleStore.title }}</VAppBarTitle>
+      <VAppBarTitle>
+        <AppTitle :title="appTitleStore.title"></AppTitle>
+      </VAppBarTitle>
       <template #append>
         <VResponsive>
-          <VTooltip text="Accounts coming soon">
-            <template #activator="{ props }">
-              <VBtn v-bind="props" icon="mdi-account"> </VBtn> </template
-          ></VTooltip>
+          <VMenu>
+            <template #activator="{ props: menu }">
+              <VTooltip text="Accounts coming soon">
+                <template #activator="{ props: tooltip }">
+                  <VBtn v-bind="mergeProps(menu, tooltip)" icon="mdi-account"> </VBtn>
+                </template>
+              </VTooltip>
+            </template>
+            <template #default>
+              <VList>
+                <VListItem>Accounts coming soon</VListItem>
+              </VList>
+            </template>
+          </VMenu>
         </VResponsive>
       </template>
     </VAppBar>
@@ -33,3 +33,16 @@ const appTitleStore = useAppTitleStore()
     </VMain>
   </VApp>
 </template>
+
+<script setup lang="ts">
+import { mergeProps, ref } from 'vue'
+import { RouterView } from 'vue-router'
+import { useAppTitle, useAppTitleStore } from './composables/useAppTitle'
+import AppTitle from './components/navbar/AppTitle.vue'
+
+const drawer = ref(false)
+
+useAppTitle('Sideboards')
+
+const appTitleStore = useAppTitleStore()
+</script>
