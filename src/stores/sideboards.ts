@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import jund from "@/assets/sideboards/jund_wildfire.json"
+import jund from '@/assets/sideboards/jund_wildfire.json'
 
 export type ScryfallCard = {
   name: string
@@ -29,13 +29,31 @@ export type Sideboard = {
   in?: DeckCard[]
   out?: DeckCard[]
   note?: string[]
+  updated?: Date
 }
 
 export type Cheatsheet = {
-  art: string
+  art?: string
   name: string
-  archetype?: Deck
+  archetype?: string
   opponents: Sideboard[]
+}
+
+export const lost =
+  'https://cards.scryfall.io/art_crop/front/7/9/79b2c547-0d9e-4fd7-a399-347ad908c70b.jpg?1702429390'
+
+export const whiteWeenie = {
+  id: 3,
+  name: 'White Weenie',
+  art: 'https://cards.scryfall.io/art_crop/front/0/8/08a5007f-06a0-40fa-a252-c38baa6b5c6f.jpg?1736467608',
+  colors: 'W',
+}
+
+export const gruulMonsters = {
+  id: 4,
+  name: 'Gruul Monsters',
+  art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
+  colors: 'GR',
 }
 
 export const deckDb: Deck[] = [
@@ -51,6 +69,7 @@ export const deckDb: Deck[] = [
     art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
     colors: 'BG',
   },
+  whiteWeenie,
 ]
 
 export const useSideboardStore = defineStore('sideboard', () => {
@@ -60,20 +79,13 @@ export const useSideboardStore = defineStore('sideboard', () => {
     {
       art: 'https://cards.scryfall.io/art_crop/front/4/9/492d77e5-acc6-41b8-8930-f39d69234919.jpg?1604196948',
       name: 'Jund Wildfire',
-      archetype: {
-        name: 'Jund Wildfire',
-        art: 'https://cards.scryfall.io/art_crop/front/4/9/492d77e5-acc6-41b8-8930-f39d69234919.jpg?1604196948',
-        colors: 'BGR',
-      },
+      archetype: 'Jund Wildfire',
       opponents: jund,
     },
     {
       art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
       name: 'Gruul Monsters',
-      archetype: {
-        name: 'Gruul Monsters',
-        art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
-      },
+      archetype: 'Gruul Monsters',
       opponents: [
         {
           name: 'Jund Wildfire',
@@ -93,6 +105,11 @@ export const useSideboardStore = defineStore('sideboard', () => {
           ],
         },
       ],
+    },
+    {
+      name: 'White Weenie',
+      archetype: 'White Weenie',
+      opponents: [],
     },
   ])
 

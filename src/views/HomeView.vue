@@ -1,6 +1,6 @@
 <template>
   <VContainer fluid>
-    <VDataTable :items :loading :headers density="compact">
+    <VDataTable :items :loading :headers>
       <template #top>
         <VRow align="center">
           <VCol cols="auto" align-self="center">
@@ -32,7 +32,7 @@
             <VBtn variant="text" v-bind="props" data-test="dialog-activator">
               <template #prepend>
                 <VAvatar size="24">
-                  <VImg height="24px" :src="item.archetype?.art"></VImg>
+                  <VImg height="24px" :src="deckArt(item.archetype)"></VImg>
                 </VAvatar>
               </template>
               {{ item.name }}
@@ -40,25 +40,26 @@
           </template>
           <template #default="{ isActive }">
             <VCard>
+              <template #prepend>
+                <VAvatar size="24">
+                  <VImg height="24px" :src="deckArt(item.archetype)"></VImg>
+                </VAvatar>
+              </template>
               <template #title>
                 <span data-test="card-title">{{ item.name }} sideboard cheatsheets</span>
               </template>
               <template #text>
-                <VDataTable :items="opponentsFiltered(item.opponents)">
-                  <template #top>
-                    <VTextField
-                      v-model="opponentsFilter"
-                      label="Filter"
-                      placeholder="Filter opponents"
-                    ></VTextField>
-                  </template>
-                  <template #[`item.in`]="{ item }">
-                    <CardLink v-for="(inn, i) in item.in" :key="i" :card="inn"></CardLink>
-                  </template>
-                  <template #[`item.out`]="{ item }">
-                    <CardLink v-for="(out, i) in item.out" :key="i" :card="out"></CardLink>
-                  </template>
-                </VDataTable>
+                Here you will find sideboard about:
+                <VTextField
+                  v-model="opponentsFilter"
+                  label="Filter"
+                  placeholder="Filter opponents"
+                ></VTextField>
+                <ArchetypeChip
+                  v-for="(oppo, i) in opponentsFiltered(item.opponents)"
+                  :key="i"
+                  :name="oppo.name"
+                ></ArchetypeChip>
               </template>
               <template #actions>
                 <VBtn data-test="close-btn" @click="isActive.value = false" prepend-icon="mdi-close"
@@ -82,9 +83,8 @@
 </template>
 
 <script setup lang="ts">
-import CardLink from '@/components/CardLink.vue'
-import { useCards } from '@/stores/cards'
-import { type Sideboard, useSideboardStore } from '@/stores/sideboards'
+import ArchetypeChip from '@/components/chips/ArchetypeChip.vue'
+import { deckDb, lost, type Sideboard, useSideboardStore } from '@/stores/sideboards'
 import { computed, ref } from 'vue'
 
 const sideboards = useSideboardStore()
@@ -120,20 +120,12 @@ const opponentNames = computed(() =>
   sideboards.sideboards.flatMap((f) => f.opponents.map((m) => m.name)),
 )
 
-const cards = useCards()
-
 const headers = [
   { key: 'name', title: 'Name' },
   { key: 'opponents', title: 'Opponents' },
 ]
 
-async function getUrl(name: string) {
-  const card = await cards.get(name)
-  if (card?.image_uris?.art_crop) {
-    return card?.image_uris?.art_crop
-  }
-
-  const r = Math.floor(Math.random() * 1000)
-  return `https://picsum.photos/200/300?random=${r}`
+function deckArt(name?: string) {
+  return deckDb.find((f) => f.name === name)?.art ?? lost
 }
 </script>
