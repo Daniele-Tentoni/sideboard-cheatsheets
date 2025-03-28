@@ -33,10 +33,17 @@ Cypress.Commands.add('sideboard', (name: string) => {
   cy.visit(`/sideboard/${name}`)
 })
 
+Cypress.Commands.add('sideboards', () => {
+  cy.intercept('https://cards.scryfall.io/art_crop/**/*', { fixture: 'images/the-lost.jpg' })
+  cy.visit('sideboards')
+})
+
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
       sideboard(name: string): Chainable<void>
+      sideboards(): Chainable<void>
       //       login(email: string, password: string): Chainable<void>
       //       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
       //       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>

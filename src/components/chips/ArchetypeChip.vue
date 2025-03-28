@@ -1,9 +1,9 @@
 <template>
   <VTooltip :text="help">
     <template #activator="{ props }">
-      <VChip v-bind="props" rounded>
+      <VChip v-bind="props" data-test="archetype-chip" rounded>
         <VAvatar start size="24">
-          <VImg :src="selected?.art ?? lost" :alt="selected?.name"></VImg>
+          <VImg :src="imageSrc" :alt="selected?.name"></VImg>
         </VAvatar>
         {{ help }}
       </VChip>
@@ -19,7 +19,9 @@ const props = defineProps<{ deck?: Deck; name?: string }>()
 
 const selected = ref<Deck>()
 
-const help = computed(() => selected.value?.name  ?? props.name)
+const help = computed(() => selected.value?.name ?? props.name)
+
+const imageSrc = computed(() => selected.value?.art ?? lost)
 
 async function load() {
   if (props.deck) {
