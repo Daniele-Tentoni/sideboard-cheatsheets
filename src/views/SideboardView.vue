@@ -41,6 +41,12 @@
       </VCol>
     </VRow>
     <VRow>
+      <VCol>
+        Click on a card to mark it as took out or bringed in. Click on a card on another sideboard
+        to reset data in previous sideboard. Click on a card image to open scryfall details.
+      </VCol>
+    </VRow>
+    <VRow>
       <VCol cols="12" md="6">
         <VCombobox
           v-model="opponentsFilter"
@@ -50,7 +56,7 @@
           hide-details
           clearable
         >
-          <template #item="{ props, item }">
+          <template #item="{ item, props }">
             <VListItem v-bind="props">
               <template #prepend>
                 <VAvatar start>
@@ -158,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import CardLink from '@/components/CardLink.vue'
+import CardLink from '@/components/chips/CardChip.vue'
 import { deckDb, lost, useSideboardStore, type Cheatsheet, type Deck } from '@/stores/sideboards'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'

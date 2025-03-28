@@ -32,11 +32,14 @@ export type Sideboard = {
   updated?: Date
 }
 
+export type Visibility = 'private' | 'link' | 'public'
+
 export type Cheatsheet = {
   art?: string
   name: string
   archetype?: string
   opponents: Sideboard[]
+  visibility: Visibility
 }
 
 export const lost =
@@ -70,6 +73,19 @@ export const deckDb: Deck[] = [
     colors: 'BG',
   },
   whiteWeenie,
+  gruulMonsters,
+  {
+    id: 5,
+    name: 'Mono Red Kuldotha',
+    art: 'https://cards.scryfall.io/art_crop/front/7/e/7ee07266-a95d-4cd8-9863-1664922e9490.jpg?1710406507',
+    colors: 'R',
+  },
+  {
+    id: 6,
+    name: 'Mono Blue Faeries',
+    art: 'https://cards.scryfall.io/art_crop/front/1/c/1c487f1a-a51d-449c-827d-c7b9381acb34.jpg?1562009681',
+    colors: 'U',
+  },
 ]
 
 export const useSideboardStore = defineStore('sideboard', () => {
@@ -81,6 +97,7 @@ export const useSideboardStore = defineStore('sideboard', () => {
       name: 'Jund Wildfire',
       archetype: 'Jund Wildfire',
       opponents: jund,
+      visibility: 'public',
     },
     {
       art: 'https://cards.scryfall.io/art_crop/front/5/e/5ea568df-04a1-4012-98ec-ba75e189e0ca.jpg?1702429591',
@@ -105,11 +122,13 @@ export const useSideboardStore = defineStore('sideboard', () => {
           ],
         },
       ],
+      visibility: 'public',
     },
     {
       name: 'White Weenie',
       archetype: 'White Weenie',
       opponents: [],
+      visibility: 'public',
     },
   ])
 

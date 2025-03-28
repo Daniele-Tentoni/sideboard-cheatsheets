@@ -7,25 +7,56 @@
             <VIcon class="ma-auto">mdi-filter</VIcon>
           </VCol>
           <VCol>
-            <VAutocomplete
+            <VCombobox
+              data-test="filter-by-name"
               v-model="filterName"
               :items="names"
               label="Deck name"
-              placeholder="Filter by deck name"
+              placeholder="Filter by name"
               hide-details
-            ></VAutocomplete>
+              clearable
+              return-object
+              item-title="name"
+              item-value="name"
+            >
+              <template #item="{ item, props }">
+                <ArchetypeListItem
+                  v-bind="props"
+                  :name="item.raw.name"
+                  :art="item.raw.art"
+                ></ArchetypeListItem>
+              </template>
+            </VCombobox>
           </VCol>
           <VCol>
-            <VAutocomplete
-              v-model="filterOpponents"
-              :items="opponentNames"
-              label="Opponent deck"
-              placeholder="Filter by opponent deck"
-              hide-details
-            ></VAutocomplete>
-          </VCol> </VRow
-      ></template>
-
+            <VTooltip text="Filter all cheatsheets by opponent deck lists">
+              <template #activator="{ props }">
+                <VCombobox
+                  v-bind="props"
+                  v-model="filterOpponents"
+                  :items="opponentNames"
+                  label="Opponent deck"
+                  placeholder="Filter by opponent deck"
+                  hide-details
+                  multiple
+                  return-object
+                  clearable
+                  item-title="name"
+                  item-value="name"
+                >
+                  <template #item="{ item, props }">
+                    <ArchetypeListItem
+                      v-bind="props"
+                      :name="item.raw.name"
+                      :art="item.raw.art"
+                    ></ArchetypeListItem>
+                  </template>
+                </VCombobox>
+              </template>
+            </VTooltip>
+          </VCol>
+        </VRow>
+      </template>
       <template #[`item.name`]="{ item }">
         <VDialog max-width="800px">
           <template #activator="{ props }">
@@ -77,6 +108,7 @@
         </VDialog>
       </template>
       <template #[`item.opponents`]="{ item }"> {{ item.opponents.length }} sideboards </template>
+      <template #[`item.actions`]="{ item }">Admin {{ item.name }}</template>
       <template #no-data> No sideboard cheatsheets for the selected deck. </template>
     </VDataTable>
   </VContainer>
@@ -85,26 +117,59 @@
 <script setup lang="ts">
 import ArchetypeChip from '@/components/chips/ArchetypeChip.vue'
 import { deckDb, lost, type Sideboard, useSideboardStore } from '@/stores/sideboards'
+import { useAccounts } from '@/stores/account'
 import { computed, ref } from 'vue'
+import ArchetypeListItem from '@/components/list-items/ArchetypeListItem.vue'
+
+type Artwork = { name: string; art?: string }
+
+const accounts = useAccounts()
 
 const sideboards = useSideboardStore()
 
-const filterName = ref<string>()
+const filterName = ref<Artwork>()
 
-const filterOpponents = ref<string>()
+const filterOpponents = ref<Artwork[]>()
+
+const names = computed<Artwork[]>(() =>
+  sideboards.sideboards.map((m) => ({ name: m.name, art: m.art })),
+)
+
+const opponentNames = computed(() => {
+  const allNames: Artwork[] = sideboards.sideboards.flatMap((f) => f.opponents)
+
+  const reduced = allNames.reduce((prev, curr) => {
+    if (prev.map((m) => m.name).includes(curr.name)) {
+      return prev
+    }
+
+    prev.push(curr)
+    return prev
+  }, [] as Artwork[])
+  return reduced
+})
 
 const items = computed(() => {
+  let filtered = sideboards.sideboards
   if (filterName.value) {
-    const low = filterName.value.toLowerCase()
-    return sideboards.sideboards.filter((f) => f.name.toLowerCase().includes(low))
+    const low = filterName.value.name.toLowerCase()
+    filtered = filtered.filter((f) => f.name.toLowerCase().includes(low))
   }
 
-  return sideboards.sideboards
+  if (filterOpponents.value?.length) {
+    filtered = filtered.filter((f) =>
+      f.opponents
+        .map((m) => m.name)
+        .some((s) => filterOpponents.value!.map((m) => m.name).includes(s)),
+    )
+  }
+
+  return filtered
 })
 
 const loading = computed(() => sideboards.loading)
 
-const opponentsFilter = ref('')
+const opponentsFilter = ref<string>()
 
 const opponentsFiltered = computed(() => (opponents: Sideboard[]) => {
   if (opponentsFilter.value) {
@@ -115,15 +180,17 @@ const opponentsFiltered = computed(() => (opponents: Sideboard[]) => {
   return opponents
 })
 
-const names = computed(() => sideboards.sideboards.map((m) => m.name))
-const opponentNames = computed(() =>
-  sideboards.sideboards.flatMap((f) => f.opponents.map((m) => m.name)),
-)
+const headers = computed(() => {
+  const items = [
+    { key: 'name', title: 'Name' },
+    { key: 'opponents', title: 'Opponents' },
+  ]
+  if (accounts.user === 'admin') {
+    items.push({ key: 'actions', title: 'Actions' })
+  }
 
-const headers = [
-  { key: 'name', title: 'Name' },
-  { key: 'opponents', title: 'Opponents' },
-]
+  return items
+})
 
 function deckArt(name?: string) {
   return deckDb.find((f) => f.name === name)?.art ?? lost

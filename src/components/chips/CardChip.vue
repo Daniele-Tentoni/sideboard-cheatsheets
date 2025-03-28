@@ -2,16 +2,6 @@
   <VTooltip :disabled="error === ''" :text="error">
     <template #activator="{ props }">
       <VChip v-bind="props" data-test="chip-link" rounded @click="toggle">
-        <template #append v-if="item">
-          <VBtn
-            v-if="enabled"
-            icon="mdi-check"
-            color="primary"
-            size="xs"
-            class="ms-2 my-auto"
-          ></VBtn>
-          <VBtn v-else icon="mdi-account" color="secondary" size="xs" class="ms-2 my-auto"></VBtn>
-        </template>
         <template #prepend>
           <VAvatar start size="32" v-if="settings.useImages">
             <VImg
@@ -22,6 +12,16 @@
           </VAvatar>
         </template>
         {{ card.copies }} {{ card.name }}
+        <template #append v-if="item">
+          <VBtn
+            v-if="enabled"
+            icon="mdi-check"
+            color="primary"
+            size="xs"
+            class="ms-2 my-auto"
+          ></VBtn>
+          <VBtn v-else icon="mdi-account" color="secondary" size="xs" class="ms-2 my-auto"></VBtn>
+        </template>
       </VChip>
     </template>
   </VTooltip>

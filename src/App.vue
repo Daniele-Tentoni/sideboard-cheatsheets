@@ -26,14 +26,17 @@
     </VAppBar>
     <VNavigationDrawer mobile v-model="drawer">
       <VListItem link :to="{ name: 'home' }" title="Home" prepend-icon="mdi-home"></VListItem>
-      <VListItem link :to="{ name: 'archetypes' }" title="Archetypes" prepend-icon="mdi-format-list-bulleted-type"></VListItem>
+      <VListItem
+        link
+        :to="{ name: 'archetypes' }"
+        title="Archetypes"
+        prepend-icon="mdi-format-list-bulleted-type"
+      ></VListItem>
     </VNavigationDrawer>
     <VMain>
       <RouterView />
     </VMain>
-    <VFooter app>
-      Daniele Tentoni, 2025
-    </VFooter>
+    <VFooter app> Daniele Tentoni, 2025 </VFooter>
   </VApp>
 </template>
 
