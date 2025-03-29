@@ -1,38 +1,69 @@
 <template>
   <VContainer fluid>
-    <VDataTable :items :loading :headers density="compact">
+    <VDataTable :items :loading :headers>
       <template #top>
         <VRow align="center">
           <VCol cols="auto" align-self="center">
             <VIcon class="ma-auto">mdi-filter</VIcon>
           </VCol>
           <VCol>
-            <VAutocomplete
+            <VCombobox
+              data-test="filter-by-name"
               v-model="filterName"
               :items="names"
               label="Deck name"
-              placeholder="Filter by deck name"
+              placeholder="Filter by name"
               hide-details
-            ></VAutocomplete>
+              clearable
+              return-object
+              item-title="name"
+              item-value="name"
+            >
+              <template #item="{ item, props }">
+                <ArchetypeListItem
+                  v-bind="props"
+                  :name="item.raw.name"
+                  :art="item.raw.art"
+                ></ArchetypeListItem>
+              </template>
+            </VCombobox>
           </VCol>
           <VCol>
-            <VAutocomplete
-              v-model="filterOpponents"
-              :items="opponentNames"
-              label="Opponent deck"
-              placeholder="Filter by opponent deck"
-              hide-details
-            ></VAutocomplete>
-          </VCol> </VRow
-      ></template>
-
+            <VTooltip text="Filter all cheatsheets by opponent deck lists">
+              <template #activator="{ props }">
+                <VCombobox
+                  v-bind="props"
+                  v-model="filterOpponents"
+                  :items="opponentNames"
+                  label="Opponent deck"
+                  placeholder="Filter by opponent deck"
+                  hide-details
+                  multiple
+                  return-object
+                  clearable
+                  item-title="name"
+                  item-value="name"
+                >
+                  <template #item="{ item, props }">
+                    <ArchetypeListItem
+                      v-bind="props"
+                      :name="item.raw.name"
+                      :art="item.raw.art"
+                    ></ArchetypeListItem>
+                  </template>
+                </VCombobox>
+              </template>
+            </VTooltip>
+          </VCol>
+        </VRow>
+      </template>
       <template #[`item.name`]="{ item }">
         <VDialog max-width="800px">
           <template #activator="{ props }">
             <VBtn variant="text" v-bind="props" data-test="dialog-activator">
               <template #prepend>
                 <VAvatar size="24">
-                  <VImg height="24px" :src="item.archetype?.art"></VImg>
+                  <VImg height="24px" :src="deckArt(item.archetype)"></VImg>
                 </VAvatar>
               </template>
               {{ item.name }}
@@ -40,25 +71,26 @@
           </template>
           <template #default="{ isActive }">
             <VCard>
+              <template #prepend>
+                <VAvatar size="24">
+                  <VImg height="24px" :src="deckArt(item.archetype)"></VImg>
+                </VAvatar>
+              </template>
               <template #title>
                 <span data-test="card-title">{{ item.name }} sideboard cheatsheets</span>
               </template>
               <template #text>
-                <VDataTable :items="opponentsFiltered(item.opponents)">
-                  <template #top>
-                    <VTextField
-                      v-model="opponentsFilter"
-                      label="Filter"
-                      placeholder="Filter opponents"
-                    ></VTextField>
-                  </template>
-                  <template #[`item.in`]="{ item }">
-                    <CardLink v-for="(inn, i) in item.in" :key="i" :card="inn"></CardLink>
-                  </template>
-                  <template #[`item.out`]="{ item }">
-                    <CardLink v-for="(out, i) in item.out" :key="i" :card="out"></CardLink>
-                  </template>
-                </VDataTable>
+                Here you will find sideboard about:
+                <VTextField
+                  v-model="opponentsFilter"
+                  label="Filter"
+                  placeholder="Filter opponents"
+                ></VTextField>
+                <ArchetypeChip
+                  v-for="(oppo, i) in opponentsFiltered(item.opponents)"
+                  :key="i"
+                  :name="oppo.name"
+                ></ArchetypeChip>
               </template>
               <template #actions>
                 <VBtn data-test="close-btn" @click="isActive.value = false" prepend-icon="mdi-close"
@@ -76,35 +108,68 @@
         </VDialog>
       </template>
       <template #[`item.opponents`]="{ item }"> {{ item.opponents.length }} sideboards </template>
+      <template #[`item.actions`]="{ item }">Admin {{ item.name }}</template>
       <template #no-data> No sideboard cheatsheets for the selected deck. </template>
     </VDataTable>
   </VContainer>
 </template>
 
 <script setup lang="ts">
-import CardLink from '@/components/CardLink.vue'
-import { useCards } from '@/stores/cards'
-import { type Sideboard, useSideboardStore } from '@/stores/sideboards'
+import ArchetypeChip from '@/components/chips/ArchetypeChip.vue'
+import { deckDb, lost, type Sideboard, useSideboardStore } from '@/stores/sideboards'
+import { useAccounts } from '@/stores/account'
 import { computed, ref } from 'vue'
+import ArchetypeListItem from '@/components/list-items/ArchetypeListItem.vue'
+
+type Artwork = { name: string; art?: string }
+
+const accounts = useAccounts()
 
 const sideboards = useSideboardStore()
 
-const filterName = ref<string>()
+const filterName = ref<Artwork>()
 
-const filterOpponents = ref<string>()
+const filterOpponents = ref<Artwork[]>()
+
+const names = computed<Artwork[]>(() =>
+  sideboards.sideboards.map((m) => ({ name: m.name, art: m.art })),
+)
+
+const opponentNames = computed(() => {
+  const allNames: Artwork[] = sideboards.sideboards.flatMap((f) => f.opponents)
+
+  const reduced = allNames.reduce((prev, curr) => {
+    if (prev.map((m) => m.name).includes(curr.name)) {
+      return prev
+    }
+
+    prev.push(curr)
+    return prev
+  }, [] as Artwork[])
+  return reduced
+})
 
 const items = computed(() => {
-  if (filterName.value) {
-    const low = filterName.value.toLowerCase()
-    return sideboards.sideboards.filter((f) => f.name.toLowerCase().includes(low))
+  let filtered = sideboards.sideboards
+  if (filterName.value?.name) {
+    const low = filterName.value.name.toLowerCase()
+    filtered = filtered.filter((f) => f.name.toLowerCase().includes(low))
   }
 
-  return sideboards.sideboards
+  if (filterOpponents.value?.length) {
+    filtered = filtered.filter((f) =>
+      f.opponents
+        .map((m) => m.name)
+        .some((s) => filterOpponents.value!.map((m) => m.name).includes(s)),
+    )
+  }
+
+  return filtered
 })
 
 const loading = computed(() => sideboards.loading)
 
-const opponentsFilter = ref('')
+const opponentsFilter = ref<string>()
 
 const opponentsFiltered = computed(() => (opponents: Sideboard[]) => {
   if (opponentsFilter.value) {
@@ -115,25 +180,19 @@ const opponentsFiltered = computed(() => (opponents: Sideboard[]) => {
   return opponents
 })
 
-const names = computed(() => sideboards.sideboards.map((m) => m.name))
-const opponentNames = computed(() =>
-  sideboards.sideboards.flatMap((f) => f.opponents.map((m) => m.name)),
-)
-
-const cards = useCards()
-
-const headers = [
-  { key: 'name', title: 'Name' },
-  { key: 'opponents', title: 'Opponents' },
-]
-
-async function getUrl(name: string) {
-  const card = await cards.get(name)
-  if (card?.image_uris?.art_crop) {
-    return card?.image_uris?.art_crop
+const headers = computed(() => {
+  const items = [
+    { key: 'name', title: 'Name' },
+    { key: 'opponents', title: 'Opponents' },
+  ]
+  if (accounts.user === 'admin') {
+    items.push({ key: 'actions', title: 'Actions' })
   }
 
-  const r = Math.floor(Math.random() * 1000)
-  return `https://picsum.photos/200/300?random=${r}`
+  return items
+})
+
+function deckArt(name?: string) {
+  return deckDb.find((f) => f.name === name)?.art ?? lost
 }
 </script>

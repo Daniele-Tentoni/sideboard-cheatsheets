@@ -1,7 +1,17 @@
 <template>
   <VTooltip :disabled="error === ''" :text="error">
     <template #activator="{ props }">
-      <VChip density="compact" v-bind="props" data-test="chip-link" pill @click="toggle">
+      <VChip v-bind="props" data-test="chip-link" rounded @click="toggle">
+        <template #prepend>
+          <VAvatar start size="32" v-if="settings.useImages">
+            <VImg
+              :src="scryfallCard?.image_uris?.art_crop"
+              :alt="scryfallCard?.name"
+              @click.stop="nav"
+            ></VImg>
+          </VAvatar>
+        </template>
+        {{ card.copies }} {{ card.name }}
         <template #append v-if="item">
           <VBtn
             v-if="enabled"
@@ -12,14 +22,6 @@
           ></VBtn>
           <VBtn v-else icon="mdi-account" color="secondary" size="xs" class="ms-2 my-auto"></VBtn>
         </template>
-        <VAvatar start v-if="settings.useImages">
-          <VImg
-            :src="scryfallCard?.image_uris?.art_crop"
-            :alt="scryfallCard?.name"
-            @click.stop="nav"
-          ></VImg>
-        </VAvatar>
-        {{ card.copies }} {{ card.name }}
       </VChip>
     </template>
   </VTooltip>

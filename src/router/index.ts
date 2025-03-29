@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '@/views/HomeView.vue'
 import SideboardView from '@/views/SideboardView.vue'
 import ArchetypeView from '@/views/admin/ArchetypeView.vue'
 import AdminView from '@/views/admin/AdminView.vue'
@@ -31,6 +31,19 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
+    },
+    {
+      path: '/about',
+      name: 'about',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/AboutView.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)',
+      name: 'catch all route',
+      component: () => import('../views/error/NotFoundView.vue'),
     },
   ],
 })

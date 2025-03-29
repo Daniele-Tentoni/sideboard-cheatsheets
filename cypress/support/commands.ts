@@ -25,15 +25,32 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 //
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
+
+Cypress.Commands.add('sideboard', (name: string) => {
+  cy.intercept('https://cards.scryfall.io/art_crop/**/*', { fixture: 'images/the-lost.jpg' })
+  cy.intercept('https://api.scryfall.com/cards/named?fuzzy=*', {
+    fixture: 'scryfall/eviscerators_insight_fuzzy.json',
+  })
+  cy.visit(`/sideboard/${name}`)
+})
+
+Cypress.Commands.add('sideboards', () => {
+  cy.intercept('https://cards.scryfall.io/art_crop/**/*', { fixture: 'images/the-lost.jpg' })
+  cy.visit('sideboards')
+})
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Cypress {
+    interface Chainable {
+      sideboard(name: string): Chainable<void>
+      sideboards(): Chainable<void>
+      //       login(email: string, password: string): Chainable<void>
+      //       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
+      //       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
+      //       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
+    }
+  }
+}
 
 export {}
