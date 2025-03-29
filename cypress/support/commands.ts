@@ -27,6 +27,7 @@
 //
 
 Cypress.Commands.add('sideboard', (name: string) => {
+  cy.intercept('https://cards.scryfall.io/art_crop/**/*', { fixture: 'images/the-lost.jpg' })
   cy.intercept('https://api.scryfall.com/cards/named?fuzzy=*', {
     fixture: 'scryfall/eviscerators_insight_fuzzy.json',
   })
