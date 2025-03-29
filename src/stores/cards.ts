@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { ScryfallCard } from './sideboards'
+import scryfall from '@/services/scryfall'
 
 export class SideboardError extends Error {
   data: object
@@ -14,6 +15,8 @@ export class SideboardError extends Error {
 export const useCards = defineStore('card', () => {
   const cards = ref<ScryfallCard[]>([])
 
+  const calls: { [key: string]: Promise<ScryfallCard> } = {}
+
   const loading = ref(false)
 
   async function get(name: string): Promise<ScryfallCard> {
@@ -22,19 +25,24 @@ export const useCards = defineStore('card', () => {
       return old
     }
 
+    if (name in calls) {
+      return calls[name]
+    }
+
     try {
       loading.value = true
       const merged = name.replace(' ', '+').toLowerCase()
-      const res = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + merged)
-      if (res.ok) {
-        const card = await res.json()
-        cards.value.push(card)
-        return card
-      }
-
-      const obj = await res.json()
-      const e = new SideboardError('Get card error', obj)
-      throw e
+      const p = new Promise<ScryfallCard>(async function (res, rej) {
+        try {
+          const card = await scryfall.fuzzySearch(merged)
+          cards.value.push(card)
+          res(card)
+        } catch (e) {
+          rej(e)
+        }
+      })
+      calls[name] = p
+      return p
     } finally {
       loading.value = false
     }

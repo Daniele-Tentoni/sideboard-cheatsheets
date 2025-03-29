@@ -59,6 +59,13 @@ export const gruulMonsters = {
   colors: 'GR',
 }
 
+export const monoUTerror = {
+  id: 4,
+  name: 'Mono Blue Terror',
+  art: 'https://cards.scryfall.io/art_crop/front/4/2/42f01cba-43d4-46ad-b7a5-d7631b0e1347.jpg?1673306903',
+  colors: 'U',
+}
+
 export const deckDb: Deck[] = [
   {
     id: 1,

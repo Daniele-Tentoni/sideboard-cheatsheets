@@ -8,6 +8,7 @@
               :src="scryfallCard?.image_uris?.art_crop"
               :alt="scryfallCard?.name"
               @click.stop="nav"
+              data-test="card-art"
             ></VImg>
           </VAvatar>
         </template>

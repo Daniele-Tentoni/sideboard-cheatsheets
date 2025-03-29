@@ -45,3 +45,19 @@ jobs:
         with:
           start: npm run preview
           browser: chrome
+
+  unit-coverage:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download the build folder
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist
+
+      - name: Run unit tests
+        run: npm run test:coverage
