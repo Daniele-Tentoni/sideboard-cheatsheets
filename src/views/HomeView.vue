@@ -151,7 +151,7 @@ const opponentNames = computed(() => {
 
 const items = computed(() => {
   let filtered = sideboards.sideboards
-  if (filterName.value) {
+  if (filterName.value?.name) {
     const low = filterName.value.name.toLowerCase()
     filtered = filtered.filter((f) => f.name.toLowerCase().includes(low))
   }
