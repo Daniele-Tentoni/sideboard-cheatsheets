@@ -60,4 +60,6 @@ jobs:
           cache: 'npm'
 
       - name: Run unit tests
-        run: npm run test:coverage
+        run: |
+          npm ci
+          npm run test:coverage
