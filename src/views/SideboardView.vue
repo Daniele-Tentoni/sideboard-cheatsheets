@@ -30,7 +30,7 @@
                 data-test="view-menu-cards-button"
               ></VListItem>
               <VListItem
-                :prepend-icon="visualization === 'list' ? 'mdi-check' : 'mdi-list-view'"
+                :prepend-icon="visualization === 'list' ? 'mdi-check' : 'mdi-list-box'"
                 title="List"
                 @click="visualization = 'list'"
                 data-test="view-menu-list-button"
